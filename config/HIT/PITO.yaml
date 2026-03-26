@@ -1,0 +1,55 @@
+data:
+  name: HIT # flow field type
+  paths: ['../data/PINO_3d/HIT/fDNS_train5000case_HIT.npy'] # data path
+  nv: 0.015625 # viscosity
+  offset: 0
+  dt: 0.01 # time step
+  data_res: [32, 32, 32, 11, 3] # gird resolution
+  pde_res: [32, 32, 32, 10, 3] # output resolution
+  n_data_samples: 5000 # number of samples
+  t_duration: 0.10 # total time duration
+  shuffle: True
+
+LES_model: 
+  isKnown: True
+  model_name: Smagorinsky model # SGS model name
+  SM: 
+    Cs_square: 0.01 # Smagorinsky coefficient
+  
+model:
+  name: VIT # neural operator name
+  patch_size: 4  
+  n_layers: 10 
+  width: 128 
+  input_dim: 7 
+  output_dim: 3  
+  times: 10 
+
+train:
+  loss_function_type: PI # loss function type
+  batchsize: 1
+  start_iter: 0
+  num_iter: 35001 # total training iterations
+  milestones: [3000,10000,20000] # learning rate decay 
+  base_lr: 0.001 # initial learning rate
+  cs_lr: 0.0 # initial learning rate for cs
+  scheduler_gamma: 0.2 # learning rate decay factor
+  xy_weight: 0 # data loss weight
+  cs_weight: 0 # cs loss weight
+  save_step: 5000 # model saving step
+  eval_step: 20 # evaluation step
+  start_step: 5000 # start evaluation step
+
+test:
+  paths: ['../data/PINO_3d/HIT/fDNS_20case_10dt.npy'] # test data path
+  testoffset: 0
+  n_test_samples: 20 # number of test samples
+  batchsize: 5
+  data_res: [32, 32, 32, 11, 3] 
+  pde_res: [32, 32, 32, 10, 3] 
+
+predict:
+  paths: ['../data/PINO_3d/HIT/fDNS_5case_HIT_initial.npy'] # predict data path
+  testoffset: 0
+  advance_steps: 50 # number of iteration steps
+  advance_time: 10 # each iteration time step
